@@ -24,18 +24,14 @@ _book
             "Principal": "*",
             "Action": "s3:*",
             "Resource": [
-                "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/*",
-                "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1"
+                "arn:aws:s3:::alb-logsfor-testing/*",
+                "arn:aws:s3:::alb-logsfor-testing"
             ],
             "Condition": {
                 "StringNotEquals": {
                     "aws:PrincipalArn": [
-                        "arn:aws:iam::043553569850:role/DivvyCloud",
-                        "arn:aws:iam::043553569850:user/gcso/aws_svc_artifactory-us-east-1",
-                        "arn:aws:iam::043553569850:user/aws_svc_gcso-platform-nonprod-sreadmin",
-                        "arn:aws:iam::043553569850:role/WAAD-SREAdmin",
                         "arn:aws:iam::127311923021:root",
-                        "delivery.logs.amazonaws.com"
+                        "arn:aws:iam::781827335746:user/mohammad"
                     ]
                 }
             }
@@ -45,7 +41,7 @@ _book
             "Effect": "Deny",
             "Principal": "*",
             "Action": "*",
-            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/*",
+            "Resource": "arn:aws:s3:::alb-logsfor-testing/*",
             "Condition": {
                 "Bool": {
                     "aws:SecureTransport": "false"
@@ -57,53 +53,19 @@ _book
             "Effect": "Allow",
             "Principal": "*",
             "Action": "s3:PutObject",
-            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/*"
-        },
-        {
-            "Sid": "ExplicitDenyDivvyCloudActions",
-            "Effect": "Deny",
-            "Principal": {
-                "AWS": "arn:aws:iam::043553569850:role/DivvyCloud"
-            },
-            "Action": [
-                "s3:Restore*",
-                "s3:Replicate*",
-                "s3:Put*",
-                "s3:GetObject",
-                "s3:Delete*",
-                "s3:AbortMultipartUpload"
-            ],
-            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/*"
+            "Resource": "arn:aws:s3:::alb-logsfor-testing/*"
         },
         {
             "Sid": "AllowArtifactoryIAMUser",
             "Effect": "Allow",
             "Principal": {
-                "AWS": "arn:aws:iam::043553569850:user/gcso/aws_svc_artifactory-us-east-1"
+                "AWS": "arn:aws:iam::781827335746:user/mohammad"
             },
-            "Action": "s3:PutObject",
+            "Action": "s3:*",
             "Resource": [
-                "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/*",
-                "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1"
+                "arn:aws:s3:::alb-logsfor-testing/*",
+                "arn:aws:s3:::alb-logsfor-testing"
             ]
-        },
-        {
-            "Sid": "AllowLogDeliveryPut",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "delivery.logs.amazonaws.com"
-            },
-            "Action": "s3:PutObject",
-            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/logs/AWSLogs/043553569850/*"
-        },
-        {
-            "Sid": "AllowLogDeliveryGet",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "delivery.logs.amazonaws.com"
-            },
-            "Action": "s3:GetBucketAcl",
-            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1"
         },
         {
             "Sid": "AllowLogsPut",
@@ -112,7 +74,7 @@ _book
                 "AWS": "arn:aws:iam::127311923021:root"
             },
             "Action": "s3:*",
-            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/logs/AWSLogs/043553569850/*"
+            "Resource": "arn:aws:s3:::alb-logsfor-testing/logs/AWSLogs/043553569850/*"
         }
     ]
 }
