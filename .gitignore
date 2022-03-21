@@ -78,3 +78,125 @@ _book
         }
     ]
 }
+
+
+
+
+
+
+
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenyAccess",
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/*",
+                "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1"
+            ],
+            "Condition": {
+                "StringNotEqualsIfExists": {
+                    "aws:PrincipalServiceName": "delivery.logs.amazonaws.com"
+                    },
+                "ArnNotEquals": {
+                    "aws:PrincipalArn": [
+                        "arn:aws:iam::043553569850:role/DivvyCloud",
+                        "arn:aws:iam::043553569850:user/gcso/aws_svc_artifactory-us-east-1",
+                        "arn:aws:iam::043553569850:user/aws_svc_gcso-platform-nonprod-sreadmin",
+                        "arn:aws:iam::043553569850:role/WAAD-SREAdmin",
+                        "arn:aws:iam::127311923021:root"             -----> This is the Logging Service account for us-east-1
+                    ]
+                }
+            }
+        },
+        {
+            "Sid": "DenyInsecureTransport",
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "*",
+            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/*",
+            "Condition": {
+                "Bool": {
+                    "aws:SecureTransport": "false"
+                }
+            }
+        },
+        {
+            "Sid": "DenyAlternateKMSKeys",
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/*",
+            "Condition": {
+                "StringNotLikeIfExists": {
+                    "s3:x-amz-server-side-encryption-aws-kms-key-id": "arn:aws:kms:us-east-1:043553569850:key/17d5beb9-64bd-496f-820f-0c1846ffc083"
+                }
+            }
+        },
+        {
+            "Sid": "ExplicitDenyDivvyCloudActions",
+            "Effect": "Deny",
+            "Principal": {
+                "AWS": "arn:aws:iam::043553569850:role/DivvyCloud"
+            },
+            "Action": [
+                "s3:Restore*",
+                "s3:Replicate*",
+                "s3:Put*",
+                "s3:GetObject",
+                "s3:Delete*",
+                "s3:AbortMultipartUpload"
+            ],
+            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/*"
+        },
+        {
+            "Sid": "AllowArtifactoryIAMUser",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::043553569850:user/gcso/aws_svc_artifactory-us-east-1"
+            },
+            "Action": "s3:PutObject",
+            "Resource": [
+                "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/*",
+                "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1"
+            ]
+        },
+        {
+            "Sid": "AllowLogDeliveryPut",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "delivery.logs.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/logs/AWSLogs/043553569850/*"
+        },
+        {
+            "Sid": "AllowLogDeliveryGet",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "delivery.logs.amazonaws.com"
+            },
+            "Action": "s3:GetBucketAcl",
+            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1",
+            "Condition": {
+                "StringEquals": {
+                    "s3:x-amz-acl": "bucket-owner-full-control"     ---> This PutObject condition section prevents the Log delivery service from owning the logs and causing access issues.
+                }
+            }
+        },
+        {
+            "Sid": "AllowLogsPut",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::127311923021:root"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::gcso-art-alb-logs-nonprod-us-east-1/logs/AWSLogs/043553569850/*"
+        }
+    ]
+}
